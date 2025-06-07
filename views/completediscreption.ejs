@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        h2, h3, h4 {
+            color: #2980b9;
+        }
+        
+        section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .diet-boxes {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .diet-boxes > div {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .diet-boxes > div:first-child {
+            background-color: #e8f5e9;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .diet-boxes > div:last-child {
+            background-color: #ffebee;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .download-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 30px auto;
+            width: 250px;
+            text-align: center;
+        }
+        
+        .download-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        #hospitals-list > div {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .diet-boxes {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Diagnosis Report</h1>
+        <section class="diagnosis-summary">
+            <h2><%= diagnosis.prediction.disease %></h2>
+            <div class="metrics">
+                <p><strong>Accuracy:</strong> <span class="accuracy"><%= diagnosis.prediction.accuracy_percentage %>%</span></p>
+                <p><strong>Confidence:</strong> <span class="confidence"><%= diagnosis.prediction.confidence_level %></span></p>
+            </div>
+        </section>
+
+        <section class="disease-info">
+            <h3>🧬 Disease Information</h3>
+            <p><strong>Name:</strong> <%= diagnosis.disease_information.name %></p>
+            <p class="description"><%= diagnosis.disease_information.description %></p>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <h4>Symptoms</h4>
+                    <ul class="symptoms-list">
+                        <% diagnosis.disease_information.common_symptoms.forEach(symptom => { %>
+                            <li><%= symptom %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+                
+                <div class="detail-item">
+                    <h4>Risk Factors</h4>
+                    <ul class="risk-factors">
+                        <% diagnosis.disease_information.risk_factors.forEach(risk => { %>
+                            <li><%= risk %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+                
+                <div class="detail-item">
+                    <h4>Complications</h4>
+                    <ul class="complications">
+                        <% diagnosis.disease_information.complications.forEach(comp => { %>
+                            <li><%= comp %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="doctor-recommendation">
+            <h3>👨‍⚕️ Recommended Doctor</h3>
+            <p><strong>Specialist:</strong> <span class="specialist"><%= diagnosis.recommended_doctor.specialist %></span></p>
+            <p class="reason"><%= diagnosis.recommended_doctor.reason %></p>
+        </section>
+
+        <section class="diet-recommendations">
+            <h3>🥗 Diet & Lifestyle Recommendations</h3>
+            <p class="goal"><%= diagnosis.diet_recommendation.goal %></p>
+
+            <div class="diet-boxes">
+                <div class="recommended-foods">
+                    <h4>✅ Recommended Foods</h4>
+                    <ul>
+                        <% diagnosis.diet_recommendation.recommended_foods.forEach(food => { %>
+                            <li><%= food %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+                <div class="foods-to-avoid">
+                    <h4>🚫 Avoid These</h4>
+                    <ul>
+                        <% diagnosis.diet_recommendation.foods_to_limit_or_avoid.forEach(item => { %>
+                            <li><%= item %></li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lifestyle-tips">
+                <h4>🧘 Lifestyle Tips</h4>
+                <ul>
+                    <% diagnosis.diet_recommendation.lifestyle_tips.forEach(tip => { %>
+                        <li><%= tip %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        </section>
+
+        <form id="pdfForm" action="/download-report" method="POST">
+            <input type="hidden" name="reportData" id="reportData">
+            <button type="submit" class="download-btn">📄 Download Report as PDF</button>
+        </form>
+        <section id="current-location">
+            
+        </section>
+        <section class="nearby-hospitals">
+            <h3>🏥 Nearest Hospitals For <%= diagnosis.recommended_doctor.specialist %></h3>
+            <div id="hospitals-list" class="hospitals-container">
+                <p class="loading-message">Loading nearby hospitals...</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const reportObject = <%- JSON.stringify(diagnosis) %>;
+        document.getElementById("reportData").value = JSON.stringify(reportObject);
+
+        // Check if geolocation is supported
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(success, error, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        } else {
+            document.getElementById("hospitals-list").innerHTML = 
+                '<p class="error-message">Geolocation is not supported by your browser</p>';
+        }
+
+        function success(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+            convertTo3wa(lat, lon);
+        }
+
+        function error(err) {
+            console.error('Geolocation error:', err);
+            const hospitalsList = document.getElementById("hospitals-list");
+            hospitalsList.innerHTML = `
+                <p class="error-message">
+                    Unable to retrieve your location. Error: ${err.message}
+                </p>
+                <p>Please enable location services to see nearby hospitals.</p>
+            `;
+        }
+
+        async function convertTo3wa(lat, lon) {
+            const apiKey = "ZRBLF2JB";
+            const url = `https://api.what3words.com/v3/convert-to-3wa?coordinates=${lat},${lon}&language=en&format=json&key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const current_location=document.getElementById("current-location");
+                current_location.innerHTML=`  <iframe
+  width="100%"
+  height="450"
+  style="border:0"
+  loading="lazy"
+  allowfullscreen
+  referrerpolicy="no-referrer-when-downgrade"
+  src="https://www.google.com/maps?q=${lat},${lon}&output=embed">
+</iframe>`
+
+                const saveResponse = await fetch('/save-location', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        location: data,
+                        specialist: "<%- diagnosis.recommended_doctor.specialist %>"
+                    })
+                });
+
+                const saveResult = await saveResponse.json();
+                console.log("Save response:", saveResult);
+
+                if (Array.isArray(saveResult) && saveResult.length > 0) {
+                    const hospitalsList = document.getElementById("hospitals-list");
+                    hospitalsList.innerHTML = saveResult.map(hospital => `
+                        <div class="hospital-card">
+                            <h4>${hospital.rank}. ${hospital.name}</h4>
+                            <p><strong>Location:</strong> ${hospital.location}</p>
+                            <p><strong>Type:</strong> ${hospital.type}</p>
+                            <p><strong>Specialties:</strong></p>
+                            <ul class="specialties">
+                                ${hospital.specialties.map(s => `<li>${s}</li>`).join('')}
+                            </ul>
+                            <p><strong>Facilities:</strong></p>
+                            <ul class="facilities">
+                                ${hospital.facilities.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                            <p><strong>Website:</strong> <a href="${hospital.website}" target="_blank">${hospital.website}</a></p>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById("hospitals-list").innerHTML = 
+                        '<p class="no-results">No nearby hospitals found for this specialty.</p>';
+                }
+
+            } catch (err) {
+                console.error("Error fetching What3Words address:", err);
+                document.getElementById("hospitals-list").innerHTML = `
+                    <p class="error-message">
+                        Error loading hospital data. Please try again later.
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
